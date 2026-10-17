@@ -1,0 +1,135 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+
+const byDateDesc = (a: { data: { date: Date } }, b: { data: { date: Date } }) =>
+  b.data.date.valueOf() - a.data.date.valueOf();
+
+const milestones = (await getCollection('milestones')).sort(byDateDesc);
+const projects = (await getCollection('projects')).sort(byDateDesc);
+const posts = (await getCollection('posts', (p) => !p.data.draft)).sort(byDateDesc);
+
+const rendered = await Promise.all(milestones.map(async (m) => ({ m, Content: (await render(m)).Content })));
+
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+const label: Record<string, string> = {
+  publication: 'Publication',
+  recognition: 'Recognition',
+  award: 'Award',
+  career: 'Career',
+  talk: 'Talk',
+  release: 'Release',
+};
+---
+
+<Base>
+  <header class="hero">
+    <h1 class="serif">Ahmed Samir</h1>
+    <p class="role">AI Engineer at Orki · Muscat, Oman</p>
+    <p>
+      I build LLM agents and Android apps. Before Orki I ran a small generative AI startup,
+      Kalima Tech, and published research on AI assistants for university students.
+    </p>
+    <nav class="social">
+      <a href="https://github.com/Astroa7m">GitHub</a>
+      <a href="https://www.linkedin.com/in/astroa7m/">LinkedIn</a>
+      <a href="https://www.youtube.com/@AstrosCoding">YouTube</a>
+    </nav>
+  </header>
+
+  <section>
+    <h2>Milestones</h2>
+    <ol class="timeline">
+      {rendered.map(({ m, Content }) => (
+        <li>
+          <div class="meta">
+            <time datetime={m.data.date.toISOString()}>{fmt(m.data.date)}</time>
+            <span class="tag">{label[m.data.type]}</span>
+          </div>
+          <h3>{m.data.title}</h3>
+          {m.data.org && <p class="org">{m.data.org}</p>}
+          <div class="body"><Content /></div>
+          {m.data.links.length > 0 && (
+            <ul class="links">
+              {m.data.links.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
+            </ul>
+          )}
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  {projects.length > 0 && (
+    <section>
+      <h2>Projects</h2>
+      <ul class="cards">
+        {projects.map((p) => (
+          <li class="card">
+            <h3>{p.data.title}</h3>
+            <p>{p.data.summary}</p>
+            {p.data.demoVideo && (
+              <div class="video">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${p.data.demoVideo}`}
+                  title={`${p.data.title} demo`}
+                  loading="lazy"
+                  allowfullscreen
+                />
+              </div>
+            )}
+            {p.data.stack.length > 0 && <p class="stack">{p.data.stack.join(' · ')}</p>}
+            {p.data.repo && <a href={p.data.repo}>Source code</a>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {posts.length > 0 && (
+    <section>
+      <h2>Writing</h2>
+      <ul class="posts">
+        {posts.map((p) => (
+          <li>
+            <a href={`/posts/${p.id}/`}>{p.data.title}</a>
+            <time datetime={p.data.date.toISOString()}>{fmt(p.data.date)}</time>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</Base>
+
+<style>
+  .hero { padding: 72px 0 24px; }
+  .hero h1 { font-size: clamp(2.4rem, 7vw, 3.4rem); margin: 0; }
+  .role { color: var(--muted); margin: 4px 0 16px; }
+  .social { display: flex; gap: 20px; flex-wrap: wrap; }
+  section { margin-top: 48px; }
+  h2 { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+  .timeline { list-style: none; margin: 0; padding: 0; border-left: 2px solid var(--line); }
+  .timeline > li { position: relative; padding: 0 0 36px 24px; }
+  .timeline > li::before {
+    content: ''; position: absolute; left: -7px; top: 6px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--bg); border: 2px solid var(--accent);
+  }
+  .meta { display: flex; gap: 10px; align-items: center; font-size: 14px; color: var(--muted); }
+  .tag { background: var(--accent-soft); color: var(--accent); padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .timeline h3 { margin: 6px 0 2px; font-size: 1.1rem; }
+  .org { margin: 0; color: var(--muted); font-size: 14px; }
+  .body :global(p) { margin: 10px 0; }
+  .links { padding-left: 18px; margin: 8px 0 0; font-size: 15px; }
+
+  .cards { list-style: none; padding: 0; display: grid; gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+  .card h3 { margin-top: 0; }
+  .stack { color: var(--muted); font-size: 14px; }
+  .video { position: relative; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden; margin: 12px 0; }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  .posts { list-style: none; padding: 0; }
+  .posts li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .posts time { color: var(--muted); font-size: 14px; white-space: nowrap; }
+</style>
