@@ -3,7 +3,6 @@ title: "My Android tutorial became required viewing in a Canadian university cou
 date: 2026-01-31
 type: recognition
 org: "Thompson Rivers University Open Learning (Kamloops, BC, Canada)"
-video: "X6G872kgeIE"
 links:
   - label: "The video: Fragments (Part 1), Beginner's Guide to Android App Development"
     url: "https://www.youtube.com/watch?v=X6G872kgeIE"

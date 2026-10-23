@@ -15,8 +15,6 @@ const milestones = defineCollection({
     book: z.string().optional(),
     authors: z.string().optional(),
     doi: z.string().optional(),
-    // YouTube video id, embedded under the text
-    video: z.string().optional(),
     links: z.array(link).default([]),
     tags: z.array(z.string()).default([]),
   }),
@@ -33,6 +31,8 @@ const projects = defineCollection({
     repo: z.string().url().optional(),
     // YouTube video id, e.g. "X6G872kgeIE"
     demoVideo: z.string().optional(),
+    // Direct .mp4 URL, played with the browser's own player
+    videoFile: z.string().url().optional(),
     links: z.array(link).default([]),
   }),
 });
