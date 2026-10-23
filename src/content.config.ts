@@ -15,6 +15,8 @@ const milestones = defineCollection({
     book: z.string().optional(),
     authors: z.string().optional(),
     doi: z.string().optional(),
+    // YouTube video id, embedded under the text
+    video: z.string().optional(),
     links: z.array(link).default([]),
     tags: z.array(z.string()).default([]),
   }),

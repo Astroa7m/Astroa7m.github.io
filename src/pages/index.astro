@@ -49,6 +49,16 @@ const label: Record<string, string> = {
           <h3>{m.data.title}</h3>
           {m.data.org && <p class="org">{m.data.org}</p>}
           <div class="body"><Content /></div>
+          {m.data.video && (
+            <div class="video">
+              <iframe
+                src={`https://www.youtube-nocookie.com/embed/${m.data.video}`}
+                title={m.data.title}
+                loading="lazy"
+                allowfullscreen
+              />
+            </div>
+          )}
           {m.data.links.length > 0 && (
             <ul class="links">
               {m.data.links.map((l) => <li><a href={l.url}>{l.label}</a></li>)}
